@@ -1,0 +1,344 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "rpc": {
+      "type": "object",
+      "properties": {
+        "rpc": {
+          "type": "string",
+          "title": "JsonRPC method",
+          "description": "Name of the JsonRPC method. For example: 'rpc: \"zray.subscribe\"'"
+        },
+        "params": {
+          "type": "object",
+          "title": "JsonRPC params",
+          "description": "JsonRPC method parameters as key-value pairs that will be converted into a Json object."
+        },
+        "result": {
+          "type": ["string", "number"],
+          "title": "JsonRPC result",
+          "description": "Expected JsonRPC method result. For example: 'result: \"OK\"'"
+        },
+        "store": {
+          "type": "string",
+          "title": "Store result",
+          "description": "Store the JsonRPC method result in a named local variable. For example: 'store: \"JQ_JOB_ID\"'"
+        },
+        "store_global": {
+          "type": "string",
+          "title": "Store result",
+          "description": "Store the JsonRPC method result in a named global variable. For example: 'store_global: \"JQ_JOB_ID\"'"
+        }
+      },
+      "required": ["rpc"],
+      "additionalProperties": false
+    },
+    "get": {
+      "type": "object",
+      "properties": {
+        "get": {
+          "type": "string",
+          "title": "HTTP Get",
+          "description": "URL for the HTTP GET request without the address and port number. For example: 'get: \"jq_add_job.php\"'"
+        },
+        "response": {
+          "type": "integer",
+          "title": "HTTP Response Code",
+          "description": "Expected HTTP response code. For example: 'response: 200'"
+        },
+        "result": {
+          "type": "string",
+          "title": "Expected result",
+          "description": "Expected result from the HTTP request. The HTTP response body must be a JSON object containing the 'result' member. For example: 'result: \"OK\"'"
+        },
+        "store": {
+            "type": "string",
+            "title": "Store result",
+            "description": "Store the result from the HTTP request into a local named variable. The HTTP response body must be a JSON object containing the 'result' member. For example: 'store: \"JQ_JOB_ID\"'"
+        },
+        "store_global": {
+            "type": "string",
+            "title": "Store result",
+            "description": "Store the result from the HTTP request into a global named variable. The HTTP response body must be a JSON object containing the 'result' member. For example: 'store_global: \"JQ_JOB_ID\"'"
+        },
+        "token": {
+          "type": "string",
+          "title": "Z-Ray Token",
+          "description": "Optional token to use for Z-Ray activation. For example: 'token: \"${ZRAY_TOKEN}\"'"
+        }
+      },
+      "required": ["get"],
+      "additionalProperties": false
+    },
+    "exec": {
+      "type": "object",
+      "properties": {
+        "exec": {
+          "type": "string",
+          "title": "Exec",
+          "description": "Command to execute with optional arguments. For example: 'exec: \"zendhqctl jobqueue queue list\"'"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "description": "Optional name of the task"
+        },
+        "skip": {
+            "type": "string",
+            "title": "Skip task",
+            "description": "Optionally skip the task with a reason. For example: 'skip: \"Not implemented\"'"
+        },
+        "exit": {
+          "type": "integer",
+          "title": "Exit code",
+          "description": "Expected exit code. For example: 'exit: 0'"
+        },
+        "if_has_var": {
+            "type": "string",
+            "title": "Execute if variable exists",
+            "description": "Executes the task only if the named variable exists. For example: 'if_has_var: \"DEFAULT_QUEUE_ID\"'"
+        },
+        "stdout": {
+          "type": "array",
+          "title": "stdout checks",
+          "description": "A list of regular expression checks to match against the stdout",
+          "items": {
+            "$ref": "#/definitions/check"
+          }
+        },
+        "stderr": {
+          "type": "array",
+          "title": "stderr checks",
+          "description": "A list of regular expression checks to match against the stderr",
+          "items": {
+            "$ref": "#/definitions/check"
+          }
+        }
+      },
+      "required": ["exec"],
+      "additionalProperties": false
+    },
+    "check": {
+      "type": "object",
+      "properties": {
+        "check": {
+          "type": "string",
+          "title": "Check",
+          "description": "Name of the check"
+        },
+        "optional": {
+          "type": "string",
+          "title": "Optional check",
+          "description": "Name of the optional check"
+        },
+        "regexp": {
+          "type": "string",
+          "title": "Regular expression",
+          "description": "Regular expression to match against the output",
+          "format": "regex"
+        },
+        "captures": {
+          "type": "array",
+          "title": "Captures",
+          "description": "A list of actions performed on captured values. The list must be a sequence of actions up to the total number of captures, but not more.",
+          "items": {
+            "$ref": "#/definitions/capture"
+          }
+        }
+      },
+      "oneOf": [
+          {
+            "required": ["check"]
+          },
+          {
+            "required": ["optional"]
+          }
+      ],
+      "additionalProperties": false
+    },
+    "capture": {
+      "type": "object",
+      "properties": {
+        "eq": {
+          "type": "string",
+          "title": "Expected value",
+          "description": "Value to compare against the captured value"
+        },
+        "store": {
+          "type": "string",
+          "title": "Store captured value",
+          "description": "Name of the local storage variable to store the captured value. For example: 'store: \"JQ_JOB_ID\"'"
+        },
+        "store_global": {
+          "type": "string",
+          "title": "Store captured value",
+          "description": "Name of the global storage variable to store the captured value. For example: 'store_global: \"JQ_JOB_ID\"'"
+        }
+      },
+      "oneOf": [
+          {
+            "required": ["eq"]
+          },
+          {
+            "required": ["store"]
+          },
+          {
+            "required": ["store_global"]
+          }
+      ],
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "title": "JsonRPC Event",
+          "description": "Name of the JsonRPC event. For example: 'event: \"jq.job_status\"'"
+        },
+        "fields": {
+          "type": "array",
+          "title": "Event fields",
+          "description": "List of expected fields in the JsonRPC event",
+          "items": {
+            "$ref": "#/definitions/field"
+          }
+        },
+        "cfields": {
+          "type": "array",
+          "title": "Condition fields",
+          "description": "List of JsonRPC fields to match the event before checking the event",
+          "items": {
+            "$ref": "#/definitions/cfield"
+          }
+        },
+        "count": {
+          "type": "integer",
+          "title": "Event count",
+          "default": 1,
+          "description": "Number of times the event is expected to occur (default is 1)"
+        },
+        "regexp": {
+          "type": "string",
+          "format": "regex",
+          "title": "Regular expression",
+          "description": "Regular expression applied to the whole JsonRPC response that must match at least once"
+        }
+      },
+      "required": ["event"],
+      "additionalProperties": false
+    },
+    "field": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Field name",
+          "description": "Name of the Json element. Can be a Json path, like: 'name: \"stack_trace[2].function_name\"'"
+        },
+        "type": {
+          "type": "string",
+          "title": "Field type",
+          "description": "Expected type of the Json value.",
+          "enum": [ "null", "array", "object", "undefined", "string", "double", "bool", "int", "uint" ]
+        },
+        "store": {
+          "type": "string",
+          "title": "Variable name",
+          "description": "Name of the local variable to store the field value"
+        },
+        "value": {
+          "type": ["boolean", "string", "number"],
+          "title": "Value",
+          "description": "Expected value of the field. Can be a variable, but then it must be a single variable without any extra text"
+        },
+        "regexp": {
+          "type": "string",
+          "title": "Regular expression",
+          "description": "Regular expression applied to the value of the field that must match."
+        },
+        "flags": {
+          "type": "string",
+          "title": "Optional flags",
+          "description": "Optional comma-separated list of flags.\nValid flags:\n* base64 - expects the field value to be base64 encoded"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "cfield": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Field name",
+          "description": "Name of the field"
+        },
+        "value": {
+          "type": ["boolean", "string", "number"],
+          "title": "Value",
+          "description": "Expected value of the field"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "test": {
+      "type": "string",
+      "title": "Name",
+      "description": "Name of the test"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "description": "Optional description of the test"
+    },
+    "timeout": {
+      "type": "integer",
+      "title": "Timeout [msec]",
+      "default": 1000,
+      "description": "Timeout value in milliseconds. Default value is 1000 msec."
+    },
+    "tasks": {
+      "type": "array",
+      "title": "Tasks to run",
+      "description": "A list of zendt tasks to run",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/rpc"
+          },
+          {
+            "$ref": "#/definitions/get"
+          },
+          {
+            "$ref": "#/definitions/exec"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "type": "object",
+      "title": "Expectations",
+      "description": "Expected results of the test",
+      "properties": {
+        "events": {
+          "type": "array",
+          "title": "Events",
+          "description": "A list of expected JsonRPC events",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/event"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "required": ["test", "tasks"],
+  "additionalProperties": false
+}
