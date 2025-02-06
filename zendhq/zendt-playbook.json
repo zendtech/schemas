@@ -261,6 +261,14 @@
           "type": "string",
           "title": "Optional flags",
           "description": "Optional comma-separated list of flags.\nValid flags:\n* base64 - expects the field value to be base64 encoded"
+        },
+        "fields": {
+          "type": "array",
+          "title": "Event sub-fields",
+          "description": "List of expected sub-fields in the JsonRPC event",
+          "items": {
+            "$ref": "#/definitions/field"
+          }
         }
       },
       "required": ["name"],
