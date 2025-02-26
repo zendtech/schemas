@@ -247,6 +247,11 @@
           "title": "Variable name",
           "description": "Name of the local variable to store the field value"
         },
+        "store_global": {
+          "type": "string",
+          "title": "Variable name",
+          "description": "Name of the global variable to store the field value"
+        },
         "value": {
           "type": ["boolean", "string", "number"],
           "title": "Value",
